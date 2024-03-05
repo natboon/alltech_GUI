@@ -1,0 +1,7 @@
+Logistic regression // 
+Naive Bayes
+SVM
+Deception tree
+Random forest //
+Multiple Layer Perceptron (Deep learning)
+Adaboost //
