@@ -36,11 +36,11 @@ predict_button = tk.Button(left_frame, text="Predict Quality", command=lambda: p
 predict_button.grid(row=len(input_labels), column=0, columnspan=2, pady=10)
 
 # Create a label to display the predicted quality
-result_label = tk.Label(left_frame, text="", font=("Arial", 14), bg='#b3e0ff')  # Set background color for the label
+result_label = tk.Label(left_frame, text="", font=("Arial", 14), bg='#FAEBD7')  # Set background color for the label
 result_label.grid(row=len(input_labels) + 1, column=0, columnspan=2, pady=10)
 
 # Create a label to display accuracy information
-accuracy_labels = tk.Label(left_frame, text="", font=("Arial", 10), bg='#b3e0ff')  # Set background color for the label
+accuracy_labels = tk.Label(left_frame, text="", font=("Arial", 10), bg='#FAEBD7')  # Set background color for the label
 accuracy_labels.grid(row=len(input_labels) + 2, column=0, columnspan=2, pady=10)
 
 # Function to predict quality based on user input
@@ -51,21 +51,38 @@ def predict_quality(entry_boxes):
     # Make predictions using the Voting Classifier
     predictions = beta.Voting.voting_clf.predict([user_input])
     
-    # Map numeric predictions to 'Good' or 'Bad'
-    predicted_label = 'Good' if predictions[0] == 1 else 'Bad'
+    # Get individual predictions from each classifier
+    individual_predictions = {
+        'Random Forest': beta.Voting.random_forest_model.predict([user_input])[0],
+        'Logistic': beta.Voting.logistic_model.predict([user_input])[0],
+        'Naive Bayes': beta.Voting.naive_bayes_model.predict([user_input])[0],
+        'SVM': beta.Voting.svm_model.predict([user_input])[0],
+        'Decision Tree': beta.Voting.decision_tree_model.predict([user_input])[0],
+        'MLP': beta.Voting.mlp_model.predict([user_input])[0],
+        'AdaBoost': beta.Voting.adaboost_model.predict([user_input])[0]
+    }
+
+    # Count the number of 'Good' and 'Bad' predictions
+    good_count = sum(1 for label in individual_predictions.values() if label == 1)
+    bad_count = sum(1 for label in individual_predictions.values() if label == 0)
+
+    # Update the display based on the majority vote
+    if good_count >= 4:
+        predicted_label = 'Good'
+    elif bad_count >= 4:
+        predicted_label = 'Bad'
+    else:
+        predicted_label = 'Undecided'  # You can customize this based on your preference
     
     # Display the predicted quality
     result_label["text"] = f"Predicted Quality: {predicted_label}"
 
     # Display accuracy information for each classifier
     accuracy_labels["text"] = ""
-    for model, model_instance in zip(['Bagging', 'Boosting', 'Random Forest', 'Logistic', 'Naive Bayes', 'SVM', 'Decision Tree', 'MLP', 'AdaBoost'],
-                                     [beta.Voting.bagging_clf, beta.Voting.boosting_clf, beta.Voting.random_forest_model, beta.Voting.logistic_model, 
-                                      beta.Voting.naive_bayes_model, beta.Voting.svm_model, beta.Voting.decision_tree_model, beta.Voting.mlp_model, beta.Voting.adaboost_model]):
-        predictions = model_instance.predict(beta.Voting.X)
-        accuracy = accuracy_score(beta.Voting.y, predictions) * 100
-        accuracy_labels["text"] += f"{model} Accuracy: {accuracy:.2f}%\n"
-        accuracy_labels["fg"] = "green" if accuracy >= 80 else "red"  # Color the text based on accuracy
+    for model, prediction in individual_predictions.items():
+        accuracy_label = 'Good' if prediction == 1 else 'Bad'
+        accuracy_labels["text"] += f"{model} Prediction: {accuracy_label}\n"
+
 
 # Create a Frame for the right side
 right_frame = tk.Frame(window, bg='#ffffff')  # Set background color for the right frame
@@ -88,8 +105,8 @@ for index, row in data.iterrows():
         tree.insert("", index, values=tuple(row), tags=('odd',))
 
 # Configure tag colors
-tree.tag_configure('even', background='#b3e0ff')
-tree.tag_configure('odd', background='#ffffff')
+tree.tag_configure('even', background='#007FFF')
+tree.tag_configure('odd', background='#00FFFF')
 
 # Insert data into Treeview
 for index, row in data.iterrows():

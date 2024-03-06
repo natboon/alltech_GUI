@@ -34,18 +34,18 @@ class Voting :
     mlp_model.fit(X, y)
     adaboost_model.fit(X, y)
 
-    # Bagging
-    bagging_clf = BaggingClassifier(logistic_model, n_estimators=20)
-    bagging_clf.fit(X, y)
+    # # Bagging
+    # bagging_clf = BaggingClassifier(logistic_model, n_estimators=20)
+    # bagging_clf.fit(X, y)
 
-    # Boosting
-    boosting_clf = AdaBoostClassifier(logistic_model, n_estimators=30)
-    boosting_clf.fit(X, y)
+    # # Boosting
+    # boosting_clf = AdaBoostClassifier(logistic_model, n_estimators=30)
+    # boosting_clf.fit(X, y)
 
     # Voting Classifier
     voting_clf = VotingClassifier(estimators=[
-        ('bagging', bagging_clf),
-        ('boosting', boosting_clf),
+        # ('bagging', bagging_clf),
+        # ('boosting', boosting_clf),
         ('random_forest', random_forest_model),
         ('logistic', logistic_model),
         ('naive_bayes', naive_bayes_model),
